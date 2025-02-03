@@ -18,8 +18,8 @@ function SignupForm() {
         e.preventDefault()
         const signup = await actions.signup(emailValue, passwordValue)
         if (signup.msg) {
-            navigate("/");
             setAlertVisibility("d-none")
+            navigate("/");
         }
         else {
             setAlertVisibility("alert alert-danger")

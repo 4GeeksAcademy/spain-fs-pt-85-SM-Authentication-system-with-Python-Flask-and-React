@@ -71,7 +71,10 @@ const getState = ({ getStore, getActions, setStore }) => {
 			tokenVerify: async () => {
 				//crear un nuevo endpoint que se llame verificacion de token
 				//la peticion en la funcion tokenVerify del front deberia actualizar un estado auth:
+				
 				let token = localStorage.getItem("token");
+				console.log(token);
+				
 				const store = getStore();
 				const actions = getActions();
 				try {

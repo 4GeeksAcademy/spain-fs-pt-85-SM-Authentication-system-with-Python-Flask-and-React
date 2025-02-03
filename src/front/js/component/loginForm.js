@@ -13,8 +13,8 @@ export const LoginForm = () => {
         e.preventDefault()
         let login = await actions.login(email, password)
         if (login.status === 200) {
-            navigate("/profile");
             setAlertCredentials("d-none")
+            navigate("/profile");
             return
         }
         setAlertCredentials("alert alert-danger")
