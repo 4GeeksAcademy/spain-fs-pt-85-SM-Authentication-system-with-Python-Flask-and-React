@@ -20,14 +20,15 @@ export const Navbar = () => {
 								<button className="btn btn-primary">Login</button>
 							</Link>
 						</div> 
-						: <Link to="/">
-							<button className="btn btn-danger" onClick={actions.logout}>Logout</button>
-						</Link>
+						: <div>
+							<Link to="/profile">
+								<button className="btn btn-secondary mx-3">Profile</button>
+							</Link>
+							<Link to="/">
+								<button className="btn btn-danger" onClick={actions.logout}>Logout</button>
+							</Link>
+						</div>
 					}
-					
-					{/* {store.auth ? <Link to="/demo">
-						<button className="btn btn-primary">Check the Context in action</button>
-					</Link>:null} */}
 				</div>
 			</div>
 		</nav>

@@ -27,6 +27,7 @@ def handle_hello():
 @api.route("/signup", methods=["POST"])
 def signup():
     request_data = request.json
+    print(request_data)
     required_data = ["email", "password"]
     for data in required_data:
         if data not in request_data:
@@ -51,8 +52,7 @@ def signup():
     db.session.commit()
     return jsonify({"msg": new_user.serialize()}), 200
 
-# Create a route to authenticate your users and return JWTs. The
-# create_access_token() function is used to actually generate the JWT.
+# end point para logarse
 @api.route("/login", methods=["POST"])
 def login():
     request_data = request.json
@@ -68,17 +68,21 @@ def login():
         if email == user.email and password == user.password:
             access_token = create_access_token(identity=email)
             return jsonify(access_token=access_token), 200
-            
+        else:
+            return jsonify({"msg": "Bad email or password"}), 401
     except:
          return jsonify({"msg": "Bad email or password"}), 401
 
+# endpoint que valida si el token sirve
+@api.route("/token-verify", methods=['GET'])
+@jwt_required()
+def token_verify():
+    return jsonify({"msg": "verified"})
 
-# Protect a route with jwt_required, which will kick out requests
-# without a valid JWT present.
+# enpoint para obtener el usuario logado
 @api.route("/profile", methods=["GET"])
 @jwt_required()
 def get_profile():
     # Access the identity of the current user with get_jwt_identity
     current_user = get_jwt_identity()
-    print(current_user)
     return jsonify(logged_in_as=current_user), 200

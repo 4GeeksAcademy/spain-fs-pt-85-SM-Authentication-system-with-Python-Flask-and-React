@@ -11,9 +11,7 @@ export const LoginForm = () => {
 
     async function handleSubmit(e) {
         e.preventDefault()
-        console.log("me ejecuto");
         let login = await actions.login(email, password)
-        console.log(login);
         if (login.status === 200) {
             navigate("/profile");
             setAlertCredentials("d-none")

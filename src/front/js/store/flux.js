@@ -19,12 +19,10 @@ const getState = ({ getStore, getActions, setStore }) => {
 							"password": password
 						})
 					})
-					console.log(response);
 					let data = await response.json();
 					return data
 
 				} catch (error) {
-					console.log(error);
 					return
 				}
 			},
@@ -40,9 +38,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 							"password": password
 						})
 					})
-					console.log(response);
 					let data = await response.json();
-					console.log("data:",data);
 					if (response.status === 200) {
 						let token = data.access_token;
 						localStorage.setItem("token", token);
@@ -52,38 +48,9 @@ const getState = ({ getStore, getActions, setStore }) => {
 					}
 					return data;
 				} catch (error) {
-					console.log(error);
 					return;
 				}
 			},
-			// 	const myHeaders = new Headers();
-			// 	myHeaders.append("Content-Type", "application/json");
-
-			// 	const raw = JSON.stringify({
-			// 		"email": email,
-			// 		"password": password
-			// 	});
-
-			// 	const requestOptions = {
-			// 		method: "POST",
-			// 		headers: myHeaders,
-			// 		body: raw,
-			// 		redirect: "follow"
-			// 	};
-
-			// 	try {
-			// 		const response = await fetch("https://potential-spork-7pvx7qxxxj9c64x-3001.app.github.dev/api/login", requestOptions);
-			// 		const result = await response.json();
-
-			// 		if (response.status === 200) {
-			// 			localStorage.setItem("token", result.access_token)
-			// 			return true
-			// 		}
-			// 	} catch (error) {
-			// 		console.error(error);
-			// 		return false;
-			// 	};
-			// },
 			getProfile: async () => {
 				let token = localStorage.getItem("token")
 				try {
@@ -94,7 +61,6 @@ const getState = ({ getStore, getActions, setStore }) => {
 						},
 					});
 					const data = await response.json();
-					console.log(data)
 					const store = getStore();
 					setStore({...store, loggedUser: data.logged_in_as, auth: true})
 					return;
@@ -102,9 +68,29 @@ const getState = ({ getStore, getActions, setStore }) => {
 					console.error(error);
 				};
 			},
-			tokenVerify:()=>{
+			tokenVerify: async () => {
 				//crear un nuevo endpoint que se llame verificacion de token
 				//la peticion en la funcion tokenVerify del front deberia actualizar un estado auth:
+				let token = localStorage.getItem("token");
+				const store = getStore();
+				const actions = getActions();
+				try {
+					let response = await fetch('https://glowing-halibut-x59j6jvg4q663pv56-3001.app.github.dev/api/token-verify', {
+						method: "GET",
+						headers: {
+							"Authorization": `Bearer ${token}`
+						},
+					})
+					if (response.status === 200) {
+						setStore({...store, auth: true})
+						actions.getProfile()
+						return true;
+					}				
+					setStore({...store, auth: false});
+					return false;
+				} catch (error) {
+					return
+				}
 			},
 			logout:()=>{
 				//borrar el token del localStorage
@@ -121,7 +107,6 @@ const getState = ({ getStore, getActions, setStore }) => {
 					// don't forget to return something, that is how the async resolves
 					return data;
 				} catch (error) {
-					console.log("Error loading message from backend", error)
 				}
 			},
 			changeColor: (index, color) => {
