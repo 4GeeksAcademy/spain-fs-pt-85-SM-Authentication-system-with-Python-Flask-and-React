@@ -1,3 +1,8 @@
 /* 
     General Styles used on every website (Don't Repeat Yourself)
 */
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }

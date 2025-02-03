@@ -3,63 +3,101 @@ const getState = ({ getStore, getActions, setStore }) => {
 		store: {
 			message: null,
 			auth: false,
-			demo: [
-				{
-					title: "FIRST",
-					background: "white",
-					initial: "white"
-				},
-				{
-					title: "SECOND",
-					background: "white",
-					initial: "white"
-				}
-			]
+			loggedUser: "",
 		},
 		actions: {
 			// Use getActions to call a function within a fuction
-			login: async (email, password) => {
-
-
-				const myHeaders = new Headers();
-				myHeaders.append("Content-Type", "application/json");
-
-				const raw = JSON.stringify({
-					"email": email,
-					"password": password
-				});
-
-				const requestOptions = {
-					method: "POST",
-					headers: myHeaders,
-					body: raw,
-					redirect: "follow"
-				};
-
+			signup : async function signup(email, password) {
 				try {
-					const response = await fetch("https://potential-spork-7pvx7qxxxj9c64x-3001.app.github.dev/api/login", requestOptions);
-					const result = await response.json();
+					let response = await fetch('https://glowing-halibut-x59j6jvg4q663pv56-3001.app.github.dev/api/signup',{
+						method: "POST",
+						headers: {
+							"Content-Type": "application/json"
+						},
+						body: JSON.stringify({
+							"email": email,
+							"password": password
+						})
+					})
+					console.log(response);
+					let data = await response.json();
+					return data
 
-					if (response.status === 200) {
-						localStorage.setItem("token", result.access_token)
-						return true
-					}
 				} catch (error) {
-					console.error(error);
-					return false;
-				};
+					console.log(error);
+					return
+				}
 			},
+			login: async (email, password) => {
+				try {
+					let response = await fetch('https://glowing-halibut-x59j6jvg4q663pv56-3001.app.github.dev/api/login', {
+						method: "POST",
+						headers: {
+							"Content-Type": "application/json"
+						},
+						body: JSON.stringify({
+							"email": email,
+							"password": password
+						})
+					})
+					console.log(response);
+					let data = await response.json();
+					console.log("data:",data);
+					if (response.status === 200) {
+						let token = data.access_token;
+						localStorage.setItem("token", token);
+						let actions = getActions();
+						actions.getProfile();
+						return response;
+					}
+					return data;
+				} catch (error) {
+					console.log(error);
+					return;
+				}
+			},
+			// 	const myHeaders = new Headers();
+			// 	myHeaders.append("Content-Type", "application/json");
+
+			// 	const raw = JSON.stringify({
+			// 		"email": email,
+			// 		"password": password
+			// 	});
+
+			// 	const requestOptions = {
+			// 		method: "POST",
+			// 		headers: myHeaders,
+			// 		body: raw,
+			// 		redirect: "follow"
+			// 	};
+
+			// 	try {
+			// 		const response = await fetch("https://potential-spork-7pvx7qxxxj9c64x-3001.app.github.dev/api/login", requestOptions);
+			// 		const result = await response.json();
+
+			// 		if (response.status === 200) {
+			// 			localStorage.setItem("token", result.access_token)
+			// 			return true
+			// 		}
+			// 	} catch (error) {
+			// 		console.error(error);
+			// 		return false;
+			// 	};
+			// },
 			getProfile: async () => {
 				let token = localStorage.getItem("token")
 				try {
-					const response = await fetch("https://potential-spork-7pvx7qxxxj9c64x-3001.app.github.dev/api/profile", {
+					const response = await fetch("https://glowing-halibut-x59j6jvg4q663pv56-3001.app.github.dev/api/profile", {
 						method: "GET",
 						headers: {
 							"Authorization": `Bearer ${token}`
 						},
 					});
-					const result = await response.json();
-					console.log(result)
+					const data = await response.json();
+					console.log(data)
+					const store = getStore();
+					setStore({...store, loggedUser: data.logged_in_as, auth: true})
+					return;
 				} catch (error) {
 					console.error(error);
 				};
@@ -70,6 +108,9 @@ const getState = ({ getStore, getActions, setStore }) => {
 			},
 			logout:()=>{
 				//borrar el token del localStorage
+				const store = getStore();
+				setStore({...store, loggedUser: "", auth: false})			
+				localStorage.removeItem("token");
 			},
 			getMessage: async () => {
 				try {

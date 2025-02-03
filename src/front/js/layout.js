@@ -6,6 +6,8 @@ import { BackendURL } from "./component/backendURL";
 import { Home } from "./pages/home";
 import { Demo } from "./pages/demo";
 import { Single } from "./pages/single";
+import { LoginForm } from "./component/loginForm";
+import SignupForm from "./component/signupForm";
 import injectContext from "./store/appContext";
 
 import { Navbar } from "./component/navbar";
@@ -21,7 +23,7 @@ const Layout = () => {
     if(!process.env.BACKEND_URL || process.env.BACKEND_URL == "") return <BackendURL/ >;
 
     return (
-        <div>
+        <div className="wrapper">
             <BrowserRouter basename={basename}>
                 <ScrollToTop>
                     <Navbar />
@@ -30,6 +32,8 @@ const Layout = () => {
                         <Route element={<Profile />} path="/profile" />
                         <Route element={<Demo />} path="/demo" />
                         <Route element={<Single />} path="/single/:theid" />
+                        <Route element={<LoginForm />} path="/login" />
+                        <Route element={<SignupForm />} path="/signup" />
                         <Route element={<h1>Not found!</h1>} />
                     </Routes>
                     <Footer />

@@ -6,6 +6,7 @@ from api.models import db, User
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
 from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_required
+import re
 
 api = Blueprint('api', __name__)
 
@@ -23,17 +24,48 @@ def handle_hello():
 
     return jsonify(response_body), 200
 
+@api.route("/signup", methods=["POST"])
+def signup():
+    request_data = request.json
+    required_data = ["email", "password"]
+    for data in required_data:
+        if data not in request_data:
+            return jsonify({"error": f"the field {data} is obligatory"}), 400
+    email = request_data.get("email").lower()
+    password = request_data.get("password")
+    email_regex = re.compile(r'^[[A-Za-z0-9\._%+\-]+@[A-Za-z0-9\.\-]+\.[A-Za-z]{2,}$')
+    if not bool(email_regex.match(email)):
+        return jsonify({"error": "the email is not valid"}), 400
+    try:
+        user_exist = db.session.execute(db.select(User).filter_by(email=email)).scalar_one()
+        if user_exist:
+            return jsonify({"error": "user already exist"}), 400
+    except:
+        pass
+    new_user = User(
+        email = email,
+        password = password,
+        is_active = True
+    )
+    db.session.add(new_user)
+    db.session.commit()
+    return jsonify({"msg": new_user.serialize()}), 200
 
 # Create a route to authenticate your users and return JWTs. The
 # create_access_token() function is used to actually generate the JWT.
 @api.route("/login", methods=["POST"])
 def login():
+    request_data = request.json
+    required_data = ["email", "password"]
+    for data in required_data:
+        if data not in request_data:
+            return ({"error": f"{data} field is obligatory"}), 400
+    email = request.json.get("email", None)
+    password = request.json.get("password", None)
     try:
-        email = request.json.get("email", None)
-        password = request.json.get("password", None)
         user = db.session.execute(db.select(User).filter_by(email=email)).scalar_one()
 
-        if email == user.email or password == user.password:
+        if email == user.email and password == user.password:
             access_token = create_access_token(identity=email)
             return jsonify(access_token=access_token), 200
             
